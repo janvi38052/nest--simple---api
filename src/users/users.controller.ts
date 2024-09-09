@@ -9,17 +9,17 @@ export class UsersController {
 
   @Get()
   findAll() {
-    return this.users; // Return all users
+    return this.users; 
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.users.find(user => user.id === id); // Return user by ID
+    return this.users.find(user => user.id === id); 
   }
 
   @Post()
   create(@Body() createUserDto: { id: string, name: string, email: string }) {
-    this.users.push(createUserDto); // Add a new user
+    this.users.push(createUserDto); 
     return createUserDto;
   }
 
@@ -35,7 +35,7 @@ export class UsersController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    this.users = this.users.filter(user => user.id !== id); // Remove user by ID
+    this.users = this.users.filter(user => user.id !== id); 
     return { deleted: true };
   }
 }
