@@ -1,22 +1,23 @@
 import { Controller, Get, Post, Param, Body, Delete, Put, HttpException, HttpStatus } from '@nestjs/common';
+import { UsersService, User } from './users.service';
 
 @Controller('users')
 export class UsersController {
-  private users = []; // Example user array
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   findAll() {
     try {
-      return this.users;
+      return this.usersService.findAll();
     } catch (error) {
       throw new HttpException('Failed to fetch users', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string) {  
     try {
-      const user = this.users.find(user => user.id === id);
+      const user = this.usersService.findOne(id);
       if (!user) {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
@@ -27,24 +28,21 @@ export class UsersController {
   }
 
   @Post()
-  create(@Body() createUserDto: { id: string, name: string, email: string }) {
+  create(@Body() createUserDto: { username: string, password: string, email: string }) {
     try {
-      this.users.push(createUserDto);
-      return createUserDto;
+      return this.usersService.create(createUserDto);
     } catch (error) {
       throw new HttpException('Failed to create user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: { name: string, email: string }) {
+  update(@Param('id') id: string, @Body() updateUserDto: { username?: string, password?: string, email?: string }) {
     try {
-      const user = this.users.find(user => user.id === id);
+      const user = this.usersService.update(id, updateUserDto);
       if (!user) {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
-      user.name = updateUserDto.name;
-      user.email = updateUserDto.email;
       return user;
     } catch (error) {
       throw new HttpException('Failed to update user', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -54,11 +52,11 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     try {
-      const userExists = this.users.some(user => user.id === id);
+      const userExists = this.usersService.findOne(id);
       if (!userExists) {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
-      this.users = this.users.filter(user => user.id !== id);
+      this.usersService.remove(id);
       return { deleted: true };
     } catch (error) {
       throw new HttpException('Failed to delete user', HttpStatus.INTERNAL_SERVER_ERROR);
